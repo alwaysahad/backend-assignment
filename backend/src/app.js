@@ -18,7 +18,7 @@ connectDB();
 
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL || '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -54,15 +54,21 @@ app.get('/api', (req, res) => {
   });
 });
 
+app.get('/', (req, res) => {
+  res.json({ success: true, message: 'TaskFlow API' });
+});
+
 app.all('*', (req, res, next) => {
   next(AppError.notFound(`Route ${req.originalUrl} not found`));
 });
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5001;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
 
 module.exports = app;
